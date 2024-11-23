@@ -1,0 +1,230 @@
+openapi: 3.0.0
+info:
+  title: Course Recommendation API
+  version: 1.0.0
+  description: |
+    Welcome to the **CourseMate API** documentation! This API allows you to manage users, courses, 
+    and recommendations for an enhanced learning experience. 
+    Get started with our comprehensive authentication and course recommendation features.
+
+servers:
+  - url: https://api-url.com/api
+    description: Production server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: johndoe
+        fullName:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: johndoe@example.com
+        password:
+          type: string
+          format: password
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+        duration:
+          type: number
+        category:
+          type: string
+        subCategory:
+          type: string
+
+paths:
+  /:
+    get:
+      tags:
+        - General
+      summary: API root endpoint
+      responses:
+        "200":
+          description: Welcome message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Welcome to the CourseMate API!"
+
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        201:
+          description: User registered successfully
+        400:
+          description: Invalid input or user exists
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  /profile:
+    get:
+      tags:
+        - Profile
+      summary: Get user profile
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  username:
+                    type: string
+                  full_name:
+                    type: string
+                  email:
+                    type: string
+                  profile_picture:
+                    type: string
+                    nullable: true
+
+    put:
+      tags:
+        - Profile
+      summary: Update user profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                profilePicture:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Profile updated successfully
+
+  /favorites/toggle:
+    post:
+      tags:
+        - Favorites
+      summary: Toggle favorite course
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Course"
+      responses:
+        200:
+          description: Course favorite status toggled
+
+  /favorites:
+    get:
+      tags:
+        - Favorites
+      summary: Get user's favorite courses
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of favorite courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+
+  /chatbot/chat:
+    post:
+      tags:
+        - Recommendations (Under Develop)
+      summary: Get course recommendations
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      responses:
+        200:
+          description: Recommendations received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                  context:
+                    type: object
+                    properties:
+                      has_favorites:
+                        type: boolean
+                      course_count:
+                        type: number

@@ -8,14 +8,12 @@ const bucket = require("../config/gcs");
 const { format } = require("util");
 const Multer = require("multer");
 
-// Konfigurasi multer dengan validasi file
 const multer = Multer({
   storage: Multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024, // Limit 5MB
+    fileSize: 5 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
-    // Check file type
     const allowedMimes = ["image/jpeg", "image/png", "image/gif"];
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
@@ -42,22 +40,18 @@ const updateUserProfile = async (req, res) => {
   const { username } = req.body;
 
   try {
-    // Validasi username
     if (!username || username.trim().length === 0) {
       return res.status(400).json({ message: "Username is required" });
     }
 
-    // Cek apakah username baru sudah digunakan (kecuali oleh user yang sama)
     const existingUser = await findUserByUsername(username);
     if (existingUser && existingUser.id !== req.user.id) {
       return res.status(400).json({ message: "Username already taken" });
     }
 
-    // Dapatkan profile saat ini untuk referensi
     const currentProfile = await getUserProfile(req.user.id);
-    let profilePictureUrl = currentProfile.profile_picture; // Gunakan URL yang ada jika tidak ada file baru
+    let profilePictureUrl = currentProfile.profile_picture;
 
-    // Handle file upload jika ada
     if (req.file) {
       try {
         const filename = `profile-pictures/${
@@ -65,29 +59,24 @@ const updateUserProfile = async (req, res) => {
         }-${Date.now()}${path.extname(req.file.originalname)}`;
         const file = bucket.file(filename);
 
-        // Create write stream dengan setting yang sesuai
         const blobStream = file.createWriteStream({
           resumable: false,
           metadata: {
             contentType: req.file.mimetype,
           },
-          public: true, // Make file publicly accessible
+          public: true,
         });
 
-        // Handle error pada stream
         blobStream.on("error", (err) => {
           console.error("Upload stream error:", err);
           return res.status(500).json({ error: "Failed to upload file" });
         });
 
-        // Handle selesainya upload
         await new Promise((resolve, reject) => {
           blobStream.on("finish", async () => {
             try {
-              // Make file public
               await file.makePublic();
 
-              // Get public URL
               profilePictureUrl = format(
                 `https://storage.googleapis.com/${bucket.name}/${filename}`
               );
@@ -102,15 +91,13 @@ const updateUserProfile = async (req, res) => {
           blobStream.end(req.file.buffer);
         });
 
-        // Jika ada foto profile lama, hapus dari storage
         if (currentProfile.profile_picture) {
           try {
             const oldFileName = currentProfile.profile_picture.split("/").pop();
             const oldFile = bucket.file(`profile-pictures/${oldFileName}`);
-            await oldFile.delete().catch(() => {}); // Ignore error if file doesn't exist
+            await oldFile.delete().catch(() => {});
           } catch (error) {
             console.error("Error deleting old profile picture:", error);
-            // Continue execution even if deletion fails
           }
         }
       } catch (uploadError) {
@@ -121,10 +108,8 @@ const updateUserProfile = async (req, res) => {
       }
     }
 
-    // Update profile di database
     await updateProfile(req.user.id, username, profilePictureUrl);
 
-    // Ambil dan kirim data profile yang sudah diupdate
     const updatedProfile = await getUserProfile(req.user.id);
     res.json(updatedProfile);
   } catch (err) {
