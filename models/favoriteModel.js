@@ -3,8 +3,8 @@ const db = require("../config/db");
 const addFavoriteCourse = async (userId, courseData) => {
   const query = `
     INSERT INTO favorite_courses 
-    (user_id, course_id, course_title, course_url, duration, category, sub_category)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (user_id, course_id, course_title, course_url, category, sub_category)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
   await db.query(query, [
@@ -12,7 +12,6 @@ const addFavoriteCourse = async (userId, courseData) => {
     courseData.id.toString(),
     courseData.title,
     courseData.url,
-    courseData.duration,
     courseData.category,
     courseData.subCategory,
   ]);

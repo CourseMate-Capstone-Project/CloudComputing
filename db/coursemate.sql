@@ -16,7 +16,6 @@ CREATE TABLE favorite_courses (
     course_id VARCHAR(50) NOT NULL,
     course_title VARCHAR(255) NOT NULL,
     course_url VARCHAR(512) NOT NULL,
-    duration INT NOT NULL,
     category VARCHAR(100) NOT NULL,
     sub_category VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

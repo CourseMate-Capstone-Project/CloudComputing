@@ -8,8 +8,10 @@ info:
     Get started with our comprehensive authentication and course recommendation features.
 
 servers:
-  - url: https://api-url.com/api
+  - url: https://capstone-project-442014.et.r.appspot.com/api
     description: Production server
+  - url: http://localhost:8080/api
+    description: Development Server
 
 components:
   securitySchemes:
@@ -74,23 +76,9 @@ paths:
       tags:
         - Authentication
       summary: Register new user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        201:
-          description: User registered successfully
-        400:
-          description: Invalid input or user exists
-
-  /auth/login:
-    post:
-      tags:
-        - Authentication
-      summary: Login user
+      description: |
+        Register a new user by providing a username, full name, email, and password.
+        All fields are required.
       requestBody:
         required: true
         content:
@@ -100,8 +88,59 @@ paths:
               properties:
                 username:
                   type: string
+                  example: johndoe
+                  description: Unique username for the user
+                fullName:
+                  type: string
+                  example: John Doe
+                  description: Full name of the user
+                email:
+                  type: string
+                  example: johndoe@example.com
+                  description: Valid email address of the user
                 password:
                   type: string
+                  format: password
+                  description: Secure password for the user
+      responses:
+        201:
+          description: User registered successfully
+        400:
+          description: Invalid input data (e.g., missing or invalid fields)
+        409:
+          description: Username or email already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Username or email already exists."
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: |
+        Authenticate a user by providing a valid username and password. 
+        Returns a JWT token upon successful authentication.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                  description: Username of the user
+                password:
+                  type: string
+                  format: password
+                  description: Password associated with the username
       responses:
         200:
           description: Login successful
@@ -112,6 +151,28 @@ paths:
                 properties:
                   token:
                     type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    description: JWT token for authentication
+        401:
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid username or password."
+        400:
+          description: Missing username or password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Username and password are required."
 
   /profile:
     get:
