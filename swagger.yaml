@@ -48,7 +48,7 @@ components:
           type: string
         category:
           type: string
-        subCategory:
+        interest:
           type: string
 
 paths:
