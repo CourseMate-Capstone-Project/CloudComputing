@@ -46,8 +46,6 @@ components:
           type: string
         url:
           type: string
-        duration:
-          type: number
         category:
           type: string
         subCategory:
