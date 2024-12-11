@@ -1,10 +1,4 @@
 const { Storage } = require("@google-cloud/storage");
-// const path = require("path");
-
-// const storage = new Storage({
-//   keyFilename: path.join(__dirname, "../google-cloud-key.json"),
-//   projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-// });
 
 const storage = new Storage();
 

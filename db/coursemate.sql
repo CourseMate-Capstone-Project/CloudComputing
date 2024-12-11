@@ -11,17 +11,26 @@ CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE favorite_courses (
+   id INT PRIMARY KEY AUTO_INCREMENT,
+   user_id INT NOT NULL,
+   title VARCHAR(255) NOT NULL,
+   short_intro TEXT,
+   url VARCHAR(512) NOT NULL,
+   predicted_category VARCHAR(100) NOT NULL,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+   UNIQUE KEY unique_user_course (user_id, title)
+);
+
+CREATE TABLE password_resets (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    course_id VARCHAR(50) NOT NULL,
-    course_title VARCHAR(255) NOT NULL,
-    course_url VARCHAR(512) NOT NULL,
-    category VARCHAR(100) NOT NULL,
-    sub_category VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    otp VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_course (user_id, course_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
 CREATE INDEX idx_user_username ON users(username);
 CREATE INDEX idx_user_email ON users(email);

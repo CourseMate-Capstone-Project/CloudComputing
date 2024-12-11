@@ -4,7 +4,16 @@ const {
   findUserByUsername,
   findUserByEmail,
   createUser,
+  updateUserPassword,
 } = require("../models/userModel");
+require("dotenv").config();
+const {
+  createPasswordReset,
+  verifyOTP,
+  deletePasswordReset,
+} = require("../models/passwordResetModel");
+const { sendOTPEmail } = require("../config/emailConfig");
+const { generateOTP } = require("../utils/otpUtils");
 require("dotenv").config();
 
 const register = async (req, res) => {
@@ -45,13 +54,58 @@ const login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+
     res.json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-module.exports = { register, login };
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const otp = generateOTP();
+
+    await createPasswordReset(user.id, email, otp);
+    await sendOTPEmail(email, otp);
+
+    res.json({ message: "OTP sent to email" });
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    res.status(500).json({ error: "Failed to process request" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    const reset = await verifyOTP(email, otp);
+    if (!reset) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await updateUserPassword(reset.user_id, hashedPassword);
+    await deletePasswordReset(email);
+
+    res.json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    res.status(500).json({ error: "Failed to reset password" });
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  forgotPassword,
+  resetPassword,
+};

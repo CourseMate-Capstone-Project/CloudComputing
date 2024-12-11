@@ -13,9 +13,12 @@ const findUserByEmail = async (email) => {
 };
 
 const createUser = async (username, fullName, email, hashedPassword) => {
+  const defaultProfilePicture =
+    "https://storage.googleapis.com/coursemate-imagestorage/profile-pictures/default-avatar.jpg";
+
   await db.query(
-    "INSERT INTO users (username, full_name, email, password) VALUES (?, ?, ?, ?)",
-    [username, fullName, email, hashedPassword]
+    "INSERT INTO users (username, full_name, email, password, profile_picture) VALUES (?, ?, ?, ?, ?)",
+    [username, fullName, email, hashedPassword, defaultProfilePicture]
   );
 };
 
@@ -38,10 +41,18 @@ const getUserProfile = async (userId) => {
   return rows[0];
 };
 
+const updateUserPassword = async (userId, hashedPassword) => {
+  await db.query("UPDATE users SET password = ? WHERE id = ?", [
+    hashedPassword,
+    userId,
+  ]);
+};
+
 module.exports = {
   findUserByUsername,
   findUserByEmail,
   createUser,
   updateProfile,
   getUserProfile,
+  updateUserPassword,
 };

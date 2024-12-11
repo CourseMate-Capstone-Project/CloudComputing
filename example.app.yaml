@@ -1,0 +1,27 @@
+runtime: nodejs18
+
+env_variables:
+  JWT_SECRET: "your_jwt_secret_here"
+  DB_HOST: "your_db_host_here"
+  DB_USER: "your_db_user_here"
+  DB_PASSWORD: "your_db_password_here"
+  DB_NAME: "your_db_name_here"
+  GOOGLE_CLOUD_BUCKET_NAME: "your_bucket_name_here"
+  EMAIL_USER: "your_email_here"
+  EMAIL_PASS: "your_email_password_here"
+  PORT: "8080"
+
+entrypoint: node server.js
+
+instance_class: F1
+
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  min_instances: 1
+  max_instances: 5
+
+handlers:
+  - url: /.*
+    secure: always
+    redirect_http_response_code: 301
+    script: auto

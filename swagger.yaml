@@ -37,19 +37,25 @@ components:
           type: string
           format: password
 
-    Course:
+    FavoriteCourse:
       type: object
       properties:
-        id:
-          type: string
         title:
           type: string
+          example: "Cloud Computing Fundamentals"
+          description: Title of the course
+        short_intro:
+          type: string
+          example: "Learn the basics of cloud computing and its applications"
+          description: Short description of the course
         url:
           type: string
-        category:
+          example: "https://example.com/courses/cloud-computing"
+          description: URL of the course
+        predicted_category:
           type: string
-        interest:
-          type: string
+          example: "Computer Science"
+          description: Predicted category of the course
 
 paths:
   /:
@@ -172,11 +178,66 @@ paths:
                     type: string
                     example: "Username and password are required."
 
+  /auth/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        200:
+          description: OTP sent successfully
+        404:
+          description: User not found
+        500:
+          description: Server error
+
+  /auth/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password using OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                otp:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+                newPassword:
+                  type: string
+                  format: password
+      responses:
+        200:
+          description: Password reset successful
+        400:
+          description: Invalid or expired OTP
+        500:
+          description: Server error
+
+  paths:
   /profile:
     get:
       tags:
         - Profile
       summary: Get user profile
+      description: Retrieve the current user's profile information including username, full name, email, and profile picture
       security:
         - BearerAuth: []
       responses:
@@ -185,24 +246,35 @@ paths:
           content:
             application/json:
               schema:
+                $ref: "#/components/schemas/Profile"
+        401:
+          description: Unauthorized access - Invalid or missing token
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
-                  id:
-                    type: number
-                  username:
+                  message:
                     type: string
-                  full_name:
+                    example: "No token, authorization denied"
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
                     type: string
-                  email:
-                    type: string
-                  profile_picture:
-                    type: string
-                    nullable: true
+                    example: "Server error occurred"
 
     put:
       tags:
         - Profile
       summary: Update user profile
+      description: |
+        Update user's profile information. Can update username and/or profile picture.
+        Username must be unique. Profile picture will be stored in Google Cloud Storage.
       security:
         - BearerAuth: []
       requestBody:
@@ -213,18 +285,79 @@ paths:
               properties:
                 username:
                   type: string
+                  description: New username (must be unique)
+                  example: newusername
                 profilePicture:
                   type: string
                   format: binary
+                  description: New profile picture (optional)
       responses:
         200:
           description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        400:
+          description: Invalid input or username already taken
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Username already exists"
+        401:
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No token, authorization denied"
+        413:
+          description: File too large
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "File size exceeds limit"
+        415:
+          description: Unsupported file type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unsupported file type"
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to update profile"
 
   /favorites/toggle:
     post:
       tags:
         - Favorites
-      summary: Toggle favorite course
+      summary: Toggle the favorite status of a course
+      description: |
+        Toggle the favorite status of a course for the logged-in user. 
+        If the course is already favorited, it will be removed from favorites. 
+        If not, it will be added to favorites.
       security:
         - BearerAuth: []
       requestBody:
@@ -232,58 +365,96 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Course"
+              $ref: "#/components/schemas/FavoriteCourse"
       responses:
         200:
           description: Course favorite status toggled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Course added to favorites" # or "Course removed from favorites"
+        401:
+          description: Unauthorized access - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized, please login"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "An error occurred while toggling the favorite status."
 
   /favorites:
     get:
       tags:
         - Favorites
       summary: Get user's favorite courses
+      description: Retrieve all favorite courses for the authenticated user
       security:
         - BearerAuth: []
       responses:
         200:
-          description: List of favorite courses
+          description: Favorite courses retrieved successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Course"
-
-  /chatbot/chat:
-    post:
-      tags:
-        - Recommendations (Under Develop)
-      summary: Get course recommendations
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-      responses:
-        200:
-          description: Recommendations received
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    user_id:
+                      type: integer
+                      example: 1
+                    title:
+                      type: string
+                      example: "Cloud Computing Fundamentals"
+                    short_intro:
+                      type: string
+                      example: "Learn the basics of cloud computing"
+                    url:
+                      type: string
+                      example: "https://example.com/courses/cloud-computing"
+                    predicted_category:
+                      type: string
+                      example: "Computer Science"
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2024-12-04T17:31:28.000Z"
+        401:
+          description: Unauthorized - Invalid or missing token
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  response:
+                  message:
                     type: string
-                  context:
-                    type: object
-                    properties:
-                      has_favorites:
-                        type: boolean
-                      course_count:
-                        type: number
+                    example: "No token, authorization denied"
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to fetch favorite courses"
