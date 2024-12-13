@@ -9,6 +9,10 @@ Access the full API documentation through Swagger:
 - [Swagger Documentation](https://capstone-project-442014.et.r.appspot.com/api-docs/)
 
 ---
+## Cloud Architecture
+<p align="center">
+  <img src="https://storage.googleapis.com/coursemate-imagestorage/logo-app/Coursemate-Architecture.png" style="width: 100%">
+</p>
 
 ## Features
 
@@ -127,15 +131,5 @@ The API will be available at `http://localhost:5000`.
   - Cloud SQL for database management
   - Cloud Storage for static assets
 - **Authentication**: JWT (JSON Web Token)
-
----
-
-## Contributing
-We welcome contributions! To contribute:
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Commit your changes (`git commit -m "Add new feature"`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Open a Pull Request.
 
 ---
