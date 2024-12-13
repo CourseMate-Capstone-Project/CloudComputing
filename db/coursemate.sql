@@ -32,7 +32,8 @@ CREATE TABLE password_resets (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE INDEX idx_user_username ON users(username);
 CREATE INDEX idx_user_email ON users(email);
-CREATE INDEX idx_favorite_user_id ON favorite_courses(user_id);
-CREATE INDEX idx_favorite_course_id ON favorite_courses(course_id);
+CREATE INDEX idx_user_username ON users(username);
+CREATE INDEX idx_favorite_user ON favorite_courses(user_id);
+CREATE INDEX idx_password_reset_email ON password_resets(email);
+CREATE INDEX idx_password_reset_otp ON password_resets(otp);
