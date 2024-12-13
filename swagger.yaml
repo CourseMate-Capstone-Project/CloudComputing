@@ -36,6 +36,41 @@ components:
         password:
           type: string
           format: password
+    
+    Profile:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+          description: User's unique identifier
+        username:
+          type: string
+          example: "johndoe"
+          description: User's username
+        full_name:
+          type: string
+          example: "John Doe"
+          description: User's full name
+        email:
+          type: string
+          example: "johndoe@example.com"
+          description: User's email address
+        profile_picture:
+          type: string
+          nullable: true
+          example: "https://storage.googleapis.com/coursemate-imagestorage/profile-pictures/user1.jpg"
+          description: URL to user's profile picture (optional)
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-12-04T17:31:28.000Z"
+          description: Account creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-12-04T17:31:28.000Z"
+          description: Last update timestamp
 
     FavoriteCourse:
       type: object
@@ -231,13 +266,12 @@ paths:
         500:
           description: Server error
 
-  paths:
   /profile:
     get:
       tags:
         - Profile
       summary: Get user profile
-      description: Retrieve the current user's profile information including username, full name, email, and profile picture
+      description: Retrieve the current user's profile information
       security:
         - BearerAuth: []
       responses:
@@ -273,8 +307,9 @@ paths:
         - Profile
       summary: Update user profile
       description: |
-        Update user's profile information. Can update username and/or profile picture.
-        Username must be unique. Profile picture will be stored in Google Cloud Storage.
+        Update user's profile information. Can update:
+        - Username (must be unique)
+        - Profile picture (will be stored in Google Cloud Storage)
       security:
         - BearerAuth: []
       requestBody:
@@ -298,56 +333,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Profile"
-        400:
-          description: Invalid input or username already taken
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Username already exists"
-        401:
-          description: Unauthorized access
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "No token, authorization denied"
-        413:
-          description: File too large
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "File size exceeds limit"
-        415:
-          description: Unsupported file type
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Unsupported file type"
-        500:
-          description: Server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Failed to update profile"
 
   /favorites/toggle:
     post:
