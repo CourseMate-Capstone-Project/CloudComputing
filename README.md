@@ -9,10 +9,36 @@ Access the full API documentation through Swagger:
 - [Swagger Documentation](https://capstone-project-442014.et.r.appspot.com/api-docs/)
 
 ---
+
 ## Cloud Architecture
 <p align="center">
   <img src="https://storage.googleapis.com/coursemate-imagestorage/logo-app/Coursemate-Architecture.png" style="width: 100%">
 </p>
+
+---
+
+## Google Cloud Platform Services Pricing
+
+| Service | Component | Quantity | Region | Total Price (USD) |
+|---------|-----------|----------|--------|------------------|
+| Vertex AI Model (Generative AI) | Gemini 1.5 Flash Text Input - Predictions | 266,145.83 | global | $0.00499 |
+| Vertex AI Model (Generative AI) | Gemini 1.5 Flash Text Output - Predictions | 234,208.33 | global | $0.01757 |
+| Chatbot (Cloud Run) | CPU Allocation Time (tier 2) | 37,500,000 | global | $1.26 |
+| Chatbot (Cloud Run) | Memory Allocation Time (tier 2) | 18,750,000 | global | $0.06562 |
+| Chatbot (Cloud Run) | Requests | 10,000,000 | global | $3.20 |
+| Course Recommendation API (Cloud Run) | CPU Allocation Time (tier 2) | 37,500,000 | global | $1.26 |
+| Course Recommendation API (Cloud Run) | Memory Allocation Time (tier 2) | 37,500,000 | global | $0.13125 |
+| Course Recommendation API (Cloud Run) | Requests | 10,000,000 | global | $3.20 |
+| coursemate-database (MySQL) (Cloud SQL) | Cloud SQL for MySQL: Zonal - Micro instance in Americas | 730.00 | us-central1 | $7.665 |
+| coursemate-database (MySQL) (Cloud SQL) | Cloud SQL for MySQL: Zonal - Standard storage in Americas | 7,300.00 | us-central1 | $1.70 |
+| Coursemate API Service (App Engine) | Frontend Instances Jakarta | 1.00 | asia-southeast2 | $0.00 |
+| coursemate-imagestorage (Cloud Storage) | Standard Storage US Regional | 1.00 | us-east1 | $0.00 |
+| course-recommendation-data-bucket (Cloud Storage) | Standard Storage US Regional | 1.00 | us-east1 | $0.00 |
+
+**Total Estimated Cost: $18.50443/Month**
+
+---
+
 
 ## Features
 
